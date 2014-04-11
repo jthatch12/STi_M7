@@ -1,0 +1,27 @@
+ui_print("AnyKernel Updater by Koush");
+ui_print("===========================");
+ui_print("KERNEL: STi Kernel");
+ui_print("===========================");
+set_progress(1.000000);
+ui_print("Mount /System Folder...");
+mount("ext4", "EMMC", "/dev/block/mmcblk0p35", "/system");
+ui_print("Extracting System Files...");
+package_extract_dir("system", "/system");
+set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
+ui_print("Extracting Kernel files...");
+package_extract_dir("kernel", "/tmp");
+set_perm(0, 0, 0777, "/tmp/compatibility.sh");
+set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
+set_perm(0, 0, 0777, "/tmp/mkbootimg");
+set_perm(0, 0, 0777, "/tmp/unpackbootimg");
+set_perm(0, 0, 0777, "/tmp/busybox");
+ui_print("==== Installing kernel ====");
+run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p33", "of=/tmp/boot.img");
+run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
+run_program("/tmp/mkbootimg.sh");
+run_program("/tmp/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/mmcblk0p33");
+unmount("/system");
+ui_print("===================================");
+ui_print("==== Installation Completed! ==== *");
+ui_print("===================================");
+
